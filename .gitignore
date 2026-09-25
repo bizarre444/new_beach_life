@@ -1,0 +1,33 @@
+# Unity
+unity/BeachLife/[Ll]ibrary/
+unity/BeachLife/[Tt]emp/
+unity/BeachLife/[Oo]bj/
+unity/BeachLife/[Bb]uild/
+unity/BeachLife/[Bb]uilds/
+unity/BeachLife/[Ll]ogs/
+unity/BeachLife/[Uu]ser[Ss]ettings/
+unity/BeachLife/[Mm]emoryCaptures/
+unity/BeachLife/[Rr]ecordings/
+*.csproj
+*.sln
+*.unityproj
+*.pidb
+*.booproj
+*.svd
+*.pdb.meta
+*.apk
+*.aab
+*.unitypackage
+sysinfo.txt
+crashlytics-build.properties
+
+# keep the headless tooling projects
+!tools/**/*.csproj
+
+# .NET
+bin/
+obj/
+
+# Reference material dropped in by hand (original game assets etc.)
+reference/*
+!reference/README.txt

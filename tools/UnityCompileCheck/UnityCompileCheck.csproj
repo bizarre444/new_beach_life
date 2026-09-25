@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Compile-only sanity check for the runtime scripts against Unity's published reference
+    assemblies. It catches typos and bad API usage without installing the editor; it is not
+    part of the game build. Editor-only scripts are excluded (no UnityEditor reference exists
+    on NuGet).
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9</LangVersion>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NoWarn>$(NoWarn);CS0618</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../../unity/BeachLife/Assets/Scripts/**/*.cs" LinkBase="Scripts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="UnityEngine.Modules" Version="2021.3.33" IncludeAssets="compile" />
+  </ItemGroup>
+
+</Project>

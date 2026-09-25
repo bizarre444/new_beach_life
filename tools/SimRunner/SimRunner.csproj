@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Headless balance harness: runs the resort sim for a few days and prints the ledger. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9</LangVersion>
+    <Nullable>disable</Nullable>
+    <RootNamespace>BeachLife.SimRunner</RootNamespace>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../../unity/BeachLife/Assets/Scripts/Core/**/*.cs" LinkBase="Core" />
+    <Compile Include="*.cs" />
+  </ItemGroup>
+
+</Project>
