@@ -1,3 +1,5 @@
+using System;
+
 namespace BeachLife.Core
 {
     /// <summary>Game calendar: minutes inside a day, plus day rollover.</summary>
@@ -35,6 +37,14 @@ namespace BeachLife.Core
                 dayRolled = true;
             }
             return minutes;
+        }
+
+        /// <summary>Sets the clock to a saved position.</summary>
+        public void Restore(int day, float minuteOfDay, float speed)
+        {
+            Day = Math.Max(1, day);
+            MinuteOfDay = minuteOfDay;
+            Speed = speed;
         }
     }
 }

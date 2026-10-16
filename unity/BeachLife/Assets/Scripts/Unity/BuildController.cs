@@ -50,6 +50,13 @@ namespace BeachLife.Unity
 
         private void Update()
         {
+            if (ResortRunner.Instance != null && _resort != ResortRunner.Instance.Resort)
+            {
+                _resort = ResortRunner.Instance.Resort; // new game or loaded save
+                SelectedBuilding = null;
+                LastMessage = "";
+            }
+
             if (Input.GetKeyDown(KeyCode.Escape)) SetMode(PointerMode.Inspect);
             if (Input.GetKeyDown(KeyCode.X)) SetMode(PointerMode.Demolish);
 

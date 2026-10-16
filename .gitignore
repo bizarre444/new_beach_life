@@ -31,3 +31,6 @@ obj/
 # Reference material dropped in by hand (original game assets etc.)
 reference/*
 !reference/README.txt
+
+# Built game outputs
+/build/

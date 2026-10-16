@@ -8,10 +8,12 @@ namespace BeachLife.Core
         public int Income;
         public int Upkeep;
         public int Construction;
+        public int Marketing;
+        public int Wages;
         public int Visitors;
         public int LeftAngry;
 
-        public int Profit => Income - Upkeep - Construction;
+        public int Profit => Income - Upkeep - Construction - Marketing - Wages;
     }
 
     public sealed class Economy
@@ -53,12 +55,35 @@ namespace BeachLife.Core
             Today.Upkeep += amount;
         }
 
+        public void PayWages(int amount)
+        {
+            if (amount <= 0) return;
+            Cash -= amount;
+            Today.Wages += amount;
+        }
+
+        public void PayMarketing(int amount)
+        {
+            if (amount <= 0) return;
+            Cash -= amount;
+            Today.Marketing += amount;
+        }
+
         public DayLedger CloseDay()
         {
             var closed = Today;
             History.Add(closed);
             Today = new DayLedger { Day = closed.Day + 1 };
             return closed;
+        }
+
+        /// <summary>Sets the economy to a saved position.</summary>
+        public void Restore(int cash, DayLedger today, List<DayLedger> history)
+        {
+            Cash = cash;
+            Today = today ?? new DayLedger { Day = (history != null && history.Count > 0 ? history[history.Count - 1].Day : 0) + 1 };
+            History.Clear();
+            if (history != null) History.AddRange(history);
         }
     }
 }

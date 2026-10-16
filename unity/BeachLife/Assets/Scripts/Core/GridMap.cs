@@ -36,6 +36,21 @@ namespace BeachLife.Core
 
         public void SetTile(int x, int y, TileType type) => _tiles[y * Width + x] = type;
 
+        /// <summary>Replaces the whole terrain, e.g. when loading a saved resort.</summary>
+        public void SetTiles(int[] tiles)
+        {
+            if (tiles == null || tiles.Length != _tiles.Length)
+                throw new ArgumentException("Tile array does not match the map size");
+            for (int i = 0; i < _tiles.Length; i++) _tiles[i] = (TileType)tiles[i];
+        }
+
+        public int[] ExportTiles()
+        {
+            var result = new int[_tiles.Length];
+            for (int i = 0; i < _tiles.Length; i++) result[i] = (int)_tiles[i];
+            return result;
+        }
+
         public int GetOccupant(int x, int y) => _occupancy[y * Width + x];
 
         public bool IsWalkable(int x, int y)
@@ -68,6 +83,24 @@ namespace BeachLife.Core
             for (int dy = 0; dy < h; dy++)
                 for (int dx = 0; dx < w; dx++)
                     _occupancy[(y + dy) * Width + (x + dx)] = buildingId;
+        }
+
+        /// <summary>Occupy variant for save loading that skips out-of-bounds footprints.</summary>
+        public void OccupyIfValid(int x, int y, int w, int h, int buildingId)
+        {
+            for (int dy = 0; dy < h; dy++)
+            {
+                for (int dx = 0; dx < w; dx++)
+                {
+                    int tx = x + dx, ty = y + dy;
+                    if (InBounds(tx, ty)) _occupancy[ty * Width + tx] = buildingId;
+                }
+            }
+        }
+
+        public void ClearAllOccupancy()
+        {
+            for (int i = 0; i < _occupancy.Length; i++) _occupancy[i] = -1;
         }
 
         public void Clear(int x, int y, int w, int h)

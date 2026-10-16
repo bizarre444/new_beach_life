@@ -36,6 +36,8 @@ namespace BeachLife.Core
         /// <summary>Passive mood bonus for guests nearby, and its radius in tiles.</summary>
         public float AmbienceBonus;
         public int AmbienceRadius = 4;
+        /// <summary>Prevents beach accidents for guests the tower can see.</summary>
+        public bool ProvidesSafety;
 
         public bool CanSatisfy(NeedType need) => Satisfies.ContainsKey(need);
 

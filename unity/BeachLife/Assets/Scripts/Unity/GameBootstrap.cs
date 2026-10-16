@@ -22,6 +22,14 @@ namespace BeachLife.Unity
             Create(48, 36, 12345);
         }
 
+        /// <summary>Tears the current game down and starts a fresh resort with a new seed.</summary>
+        public static void Restart()
+        {
+            var existing = FindObjectOfType<ResortRunner>();
+            if (existing != null) Destroy(existing.transform.root.gameObject);
+            Create(48, 36, Random.Range(1, int.MaxValue));
+        }
+
         public static ResortRunner Create(int width, int height, int seed)
         {
             var existing = FindObjectOfType<ResortRunner>();
@@ -35,6 +43,7 @@ namespace BeachLife.Unity
             root.AddComponent<WorldView>();
             root.AddComponent<BuildController>();
             root.AddComponent<HudGui>();
+            root.AddComponent<WeatherFx>();
 
             var camera = Camera.main;
             if (camera == null)

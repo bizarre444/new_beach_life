@@ -13,10 +13,12 @@ namespace BeachLife.Core
         public int Revenue;
         public readonly List<int> Occupants = new List<int>();
         public readonly Queue<int> Waiting = new Queue<int>();
+        /// <summary>Hotel guests holding a bed here but not physically inside right now.</summary>
+        public readonly List<int> LongStayers = new List<int>();
         /// <summary>0 is spotless, 1 is filthy; dirty buildings repel guests.</summary>
         public float Dirtiness;
 
-        public bool HasFreeSlot => Occupants.Count < Def.Capacity;
+        public bool HasFreeSlot => Occupants.Count + LongStayers.Count < Def.Capacity;
 
         public int Price => (int)(Def.TicketPrice * PriceMultiplier);
 

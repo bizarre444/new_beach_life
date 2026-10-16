@@ -32,6 +32,7 @@ namespace BeachLife.Unity
         private void Update()
         {
             Resort.Tick(Time.deltaTime);
+            if (Resort.Bankrupt && SpeedIndex != 0) SetSpeed(0); // game over freezes the clock
         }
 
         public void SetSpeed(int index)
@@ -41,6 +42,16 @@ namespace BeachLife.Unity
         }
 
         public void CycleSpeed() => SetSpeed((SpeedIndex + 1) % SpeedSteps.Length);
+
+        /// <summary>Swaps the simulation for a fresh one; views re-sync themselves.</summary>
+        public void NewGame()
+        {
+            Seed = Random.Range(1, int.MaxValue);
+            var config = new SimConfig { RealSecondsPerGameMinute = RealSecondsPerGameMinute };
+            Resort = new Resort(MapWidth, MapHeight, Seed, config);
+            SpeedIndex = 1;
+            Resort.Clock.Speed = SpeedSteps[SpeedIndex];
+        }
 
         public static Vector3 WorldPos(float tileX, float tileY, float height = 0f) =>
             new Vector3(tileX + 0.5f, height, tileY + 0.5f);

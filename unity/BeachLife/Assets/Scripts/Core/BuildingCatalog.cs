@@ -95,6 +95,44 @@ namespace BeachLife.Core
                 },
                 new BuildingDef
                 {
+                    Id = "ice_cream_stand", DisplayName = "Ice cream stand", Category = BuildingCategory.Drink,
+                    Width = 2, Height = 1, BuildCost = 1600, DailyUpkeep = 55, Capacity = 3,
+                    ServiceMinutes = 8f, TicketPrice = 8,
+                    Satisfies = { { NeedType.Thirst, 0.5f }, { NeedType.Hunger, 0.3f }, { NeedType.Fun, 0.15f } },
+                },
+                new BuildingDef
+                {
+                    Id = "volleyball_court", DisplayName = "Volleyball court", Category = BuildingCategory.Entertainment,
+                    Width = 4, Height = 3, BuildCost = 2400, DailyUpkeep = 70, Capacity = 8,
+                    ServiceMinutes = 30f, TicketPrice = 5,
+                    AllowedTiles = { TileType.Sand },
+                    Satisfies = { { NeedType.Fun, 0.8f }, { NeedType.Energy, -0.2f } },
+                },
+                new BuildingDef
+                {
+                    Id = "gift_shop", DisplayName = "Gift shop", Category = BuildingCategory.Entertainment,
+                    Width = 3, Height = 2, BuildCost = 5200, DailyUpkeep = 180, Capacity = 6,
+                    ServiceMinutes = 15f, TicketPrice = 22,
+                    Satisfies = { { NeedType.Fun, 0.45f } },
+                },
+                new BuildingDef
+                {
+                    Id = "lifeguard_tower", DisplayName = "Lifeguard tower", Category = BuildingCategory.Infrastructure,
+                    Width = 1, Height = 1, BuildCost = 700, DailyUpkeep = 25, Capacity = 0,
+                    ServiceMinutes = 0f, TicketPrice = 0,
+                    AllowedTiles = { TileType.Sand },
+                    ProvidesSafety = true,
+                    AmbienceBonus = 0.01f, AmbienceRadius = 5,
+                },
+                new BuildingDef
+                {
+                    Id = "fountain", DisplayName = "Fountain", Category = BuildingCategory.Infrastructure,
+                    Width = 2, Height = 2, BuildCost = 1400, DailyUpkeep = 15, Capacity = 0,
+                    ServiceMinutes = 0f, TicketPrice = 0,
+                    AmbienceBonus = 0.03f, AmbienceRadius = 6,
+                },
+                new BuildingDef
+                {
                     Id = "litter_bin", DisplayName = "Litter bin", Category = BuildingCategory.Infrastructure,
                     Width = 1, Height = 1, BuildCost = 150, DailyUpkeep = 8, Capacity = 0,
                     ServiceMinutes = 0f, TicketPrice = 0,
