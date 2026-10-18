@@ -72,13 +72,25 @@ namespace BeachLife.Unity
             emission.rateOverTime = 900f;
             emission.enabled = false;
 
-            var renderer = ps.GetComponent<ParticleSystemRenderer>();
-            renderer.material = new Material(Shader.Find("Particles/Standard Unlit"))
-            {
-                color = new Color(0.65f, 0.75f, 0.9f, 0.55f),
-                name = "Rain",
-            };
+            ps.GetComponent<ParticleSystemRenderer>().material = RainMaterial();
             return ps;
+        }
+
+        /// <summary>
+        /// Particle shaders may be stripped from builds, so fall back to the tinted material
+        /// Palette already resolved for everything else.
+        /// </summary>
+        private static Material RainMaterial()
+        {
+            var tint = new Color(0.65f, 0.75f, 0.9f, 0.55f);
+            var shader = Shader.Find("Particles/Standard Unlit") ?? Shader.Find("Sprites/Default");
+            if (shader == null) return Palette.Transparent(tint, 0.55f);
+
+            var material = new Material(shader) { name = "Rain" };
+            material.color = tint;
+            if (material.HasProperty("_BaseColor")) material.SetColor("_BaseColor", tint);
+            if (material.HasProperty("_TintColor")) material.SetColor("_TintColor", tint);
+            return material;
         }
     }
 }

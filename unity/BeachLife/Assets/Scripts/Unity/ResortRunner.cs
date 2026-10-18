@@ -13,6 +13,9 @@ namespace BeachLife.Unity
         public int MapHeight = 36;
         public int Seed = 12345;
 
+        [Header("Economy")]
+        public int StartingCash = 50000;
+
         [Header("Time")]
         [Tooltip("Real seconds for one in-game minute at speed 1.")]
         public float RealSecondsPerGameMinute = 0.25f;
@@ -24,9 +27,19 @@ namespace BeachLife.Unity
         private void Awake()
         {
             Instance = this;
-            var config = new SimConfig { RealSecondsPerGameMinute = RealSecondsPerGameMinute };
-            Resort = new Resort(MapWidth, MapHeight, Seed, config);
-            Resort.Clock.Speed = SpeedSteps[SpeedIndex];
+            Resort = CreateResort(Seed);
+        }
+
+        private Resort CreateResort(int seed)
+        {
+            var config = new SimConfig
+            {
+                RealSecondsPerGameMinute = RealSecondsPerGameMinute,
+                StartingCash = StartingCash,
+            };
+            var resort = new Resort(MapWidth, MapHeight, seed, config);
+            resort.Clock.Speed = SpeedSteps[SpeedIndex];
+            return resort;
         }
 
         private void Update()
@@ -47,8 +60,7 @@ namespace BeachLife.Unity
         public void NewGame()
         {
             Seed = Random.Range(1, int.MaxValue);
-            var config = new SimConfig { RealSecondsPerGameMinute = RealSecondsPerGameMinute };
-            Resort = new Resort(MapWidth, MapHeight, Seed, config);
+            Resort = CreateResort(Seed);
             SpeedIndex = 1;
             Resort.Clock.Speed = SpeedSteps[SpeedIndex];
         }

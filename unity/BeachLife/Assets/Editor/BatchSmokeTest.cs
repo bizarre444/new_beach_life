@@ -57,8 +57,11 @@ namespace BeachLife.EditorTools
 
         private static void Simulate()
         {
-            var resort = ResortRunner.Instance.Resort;
-            resort.Clock.Speed = 0f; // drive time manually so 3 days run in one call
+            // A bigger wallet so the whole layout plus staff fits; random seed like a real new game.
+            var runner = ResortRunner.Instance;
+            runner.StartingCash = 120000;
+            runner.NewGame();
+            var resort = runner.Resort;
 
             PlaceAll(resort);
 
@@ -69,7 +72,9 @@ namespace BeachLife.EditorTools
                 Errors.Add("Attendant assignment failed");
             resort.SetCampaign(CampaignLevel.Regional);
 
-            for (int i = 0; i < 3 * 40; i++) resort.Tick(30f); // three in-game days
+            // Three in-game days, in steps that keep pathing cheap.
+            int guard = 0;
+            while (resort.Clock.Day < 4 && guard++ < 5000) resort.Tick(10f);
 
             _report.VisitorsAfter3Days = resort.TotalVisitors;
             _report.CashAfter3Days = resort.Economy.Cash;
@@ -112,9 +117,10 @@ namespace BeachLife.EditorTools
             foreach (var error in Errors) Debug.LogError("BeachLifeSmoke: " + error);
 
             var reportPath = Environment.GetEnvironmentVariable("BEACHLIFE_REPORT");
-            if (string.IsNullOrEmpty(reportPath)) reportPath = "Temp/beachlife_report.json";
+            if (string.IsNullOrEmpty(reportPath)) reportPath = Path.GetFullPath("../../build/beachlife_report.json");
+            Directory.CreateDirectory(Path.GetDirectoryName(reportPath));
             File.WriteAllText(reportPath, JsonUtility.ToJson(_report, true));
-            Debug.Log($"BeachLife smoke test report: {Path.GetFullPath(reportPath)}");
+            Debug.Log($"BeachLife smoke test report: {reportPath}");
 
             EditorApplication.isPlaying = false;
             EditorApplication.Exit(Errors.Count > 0 ? 1 : 0);
@@ -175,7 +181,7 @@ namespace BeachLife.EditorTools
             RenderTexture.active = null;
             rt.Release();
 
-            var path = Path.GetFullPath("Temp/beachlife_smoke.png");
+            var path = Path.GetFullPath("../../build/beachlife_smoke.png");
             File.WriteAllBytes(path, tex.EncodeToPNG());
             return path;
         }
