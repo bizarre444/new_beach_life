@@ -32,6 +32,13 @@ namespace BeachLife.Unity
 
         private void LateUpdate()
         {
+            if (MainMenu.Visible)
+            {
+                _yaw += 5f * Time.unscaledDeltaTime; // slow scenic orbit behind the menu
+                Apply();
+                return;
+            }
+
             float dt = Time.unscaledDeltaTime;
             var forward = Quaternion.Euler(0f, _yaw, 0f) * Vector3.forward;
             var right = Quaternion.Euler(0f, _yaw, 0f) * Vector3.right;

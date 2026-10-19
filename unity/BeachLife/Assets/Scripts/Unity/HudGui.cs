@@ -32,6 +32,8 @@ namespace BeachLife.Unity
         private Vector2 _panelScroll;
         private Vector2 _logScroll;
         private HudPanel _openPanel = HudPanel.None;
+        private bool _confirmExit;
+        private int _speedBeforeDialog = 1;
         private readonly List<Rect> _hudRects = new List<Rect>();
         private GUIStyle _topStyle;
         private GUIStyle _titleStyle;
@@ -61,6 +63,12 @@ namespace BeachLife.Unity
             _hudRects.Clear();
             EnsureStyles();
 
+            if (MainMenu.Visible)
+            {
+                _confirmExit = false; // the menu supersedes the exit prompt
+                return;
+            }
+
             if (resort.Bankrupt) { DrawGameOver(resort); return; }
 
             DrawTopBar(resort);
@@ -68,6 +76,7 @@ namespace BeachLife.Unity
             DrawInspector(resort);
             DrawLog(resort);
             DrawFloatingPanel(resort);
+            if (_confirmExit) DrawExitDialog(resort);
         }
 
         private Resort CurrentResort => _runner != null ? _runner.Resort : null;
@@ -114,9 +123,60 @@ namespace BeachLife.Unity
             bool goalsOpen = _openPanel == HudPanel.Goals;
             if (GUILayout.Toggle(goalsOpen, "Goals", GUI.skin.button) && !goalsOpen) _openPanel = HudPanel.Goals;
             TogglePanelButton(HudPanel.SaveLoad, "Save");
+            if (GUILayout.Button("Menu", GUILayout.Width(58f)))
+            {
+                _confirmExit = true;
+                _speedBeforeDialog = _runner.SpeedIndex;
+                _runner.SetSpeed(0); // hold the world while the player decides
+            }
 
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
+        }
+
+        // ---------------------------------------------------------------- exit dialog
+
+        private void DrawExitDialog(Resort resort)
+        {
+            const float width = 400f, height = 190f;
+            var rect = new Rect((Screen.width - width) / 2f, (Screen.height - height) / 2f, width, height);
+            _hudRects.Add(rect);
+            GUI.Box(rect, "Leave the resort?");
+
+            GUILayout.BeginArea(new Rect(rect.x + 16f, rect.y + 26f, width - 32f, height - 40f));
+
+            int slot = FirstFreeSlot();
+            string slotLabel = SaveManager.HasSave(slot) ? SaveManager.SlotLabel(slot) : "empty";
+            if (GUILayout.Button($"Save and leave  (slot {slot + 1}: {slotLabel})", GUILayout.Height(34f)))
+            {
+                if (SaveManager.Save(resort, slot))
+                    resort.EventLog.Add($"[{resort.Clock.TimeLabel}] Game saved to slot {slot + 1}");
+                ReturnToMenu();
+            }
+            if (GUILayout.Button("Leave without saving", GUILayout.Height(34f)))
+                ReturnToMenu();
+            if (GUILayout.Button("Cancel", GUILayout.Height(34f)))
+            {
+                _confirmExit = false;
+                _runner.SetSpeed(_speedBeforeDialog);
+            }
+
+            GUILayout.EndArea();
+        }
+
+        private static int FirstFreeSlot()
+        {
+            for (int slot = 0; slot < SaveManager.SlotCount; slot++)
+                if (!SaveManager.HasSave(slot)) return slot;
+            return 0;
+        }
+
+        private void ReturnToMenu()
+        {
+            _confirmExit = false;
+            _runner.SetSpeed(Mathf.Max(1, _speedBeforeDialog));
+            var menu = FindObjectOfType<MainMenu>();
+            if (menu != null) menu.Open();
         }
 
         private void TogglePanelButton(HudPanel panel, string label)
@@ -257,6 +317,7 @@ namespace BeachLife.Unity
             try
             {
                 resort.ApplySnapshot(snapshot);
+                _runner.MarkSessionStarted();
                 resort.EventLog.Add($"[{resort.Clock.TimeLabel}] Game loaded from slot {slot + 1}");
                 _openPanel = HudPanel.None;
             }
@@ -412,8 +473,12 @@ namespace BeachLife.Unity
                 + $"Days survived: {resort.Clock.Day}      Total guests: {resort.TotalVisitors:n0}\n"
                 + $"Angry walkouts: {resort.TotalWalkouts:n0}      Final reputation: {resort.Reputation:0}");
             GUILayout.Space(18f);
-            if (GUILayout.Button("Start a new resort", GUILayout.Height(40f)))
-                GameBootstrap.Restart();
+            if (GUILayout.Button("Back to main menu", GUILayout.Height(40f)))
+            {
+                _runner.ClearSession();
+                var menu = FindObjectOfType<MainMenu>();
+                if (menu != null) menu.Open();
+            }
             GUILayout.EndArea();
         }
     }

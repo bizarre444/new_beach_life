@@ -57,11 +57,10 @@ namespace BeachLife.EditorTools
 
         private static void Simulate()
         {
-            // A bigger wallet so the whole layout plus staff fits; random seed like a real new game.
-            var runner = ResortRunner.Instance;
-            runner.StartingCash = 120000;
-            runner.NewGame();
-            var resort = runner.Resort;
+            // Start through the main menu exactly like a player picking a level.
+            MainMenu.StartNewGame(Difficulty.Relaxed);
+            var resort = ResortRunner.Instance.Resort;
+            if (MainMenu.Visible) Errors.Add("Menu still visible after starting a game");
 
             PlaceAll(resort);
 

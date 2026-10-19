@@ -15,7 +15,20 @@ namespace BeachLife.Unity
 
         private void Start()
         {
+            // Find the directional sun light specifically (not hemisphere ambient).
             _sun = FindObjectOfType<Light>();
+            if (_sun != null && _sun.type != LightType.Directional)
+            {
+                var lights = FindObjectsOfType<Light>();
+                foreach (var l in lights)
+                {
+                    if (l.type == LightType.Directional)
+                    {
+                        _sun = l;
+                        break;
+                    }
+                }
+            }
             _resort = _resort ?? (ResortRunner.Instance != null ? ResortRunner.Instance.Resort : null);
         }
 
@@ -42,6 +55,24 @@ namespace BeachLife.Unity
             RenderSettings.ambientLight = weather == WeatherType.Rainy
                 ? new Color(0.4f, 0.43f, 0.5f)
                 : new Color(0.55f, 0.57f, 0.6f) * Mathf.Lerp(0.8f, 1.05f, info.SunIntensity);
+
+            // Fog: dense grey for rain, light for cloudy, none for clear.
+            if (weather == WeatherType.Rainy)
+            {
+                RenderSettings.fog = true;
+                RenderSettings.fogColor = new Color(0.55f, 0.58f, 0.62f);
+                RenderSettings.fogDensity = 0.012f;
+            }
+            else if (weather == WeatherType.Cloudy)
+            {
+                RenderSettings.fog = true;
+                RenderSettings.fogColor = new Color(0.7f, 0.72f, 0.75f);
+                RenderSettings.fogDensity = 0.005f;
+            }
+            else
+            {
+                RenderSettings.fog = false;
+            }
 
             if (_rain == null) _rain = CreateRain();
             var emission = _rain.emission;

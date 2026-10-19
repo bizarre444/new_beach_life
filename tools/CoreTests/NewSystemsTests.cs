@@ -2,6 +2,36 @@ using System.Linq;
 using BeachLife.Core;
 using Xunit;
 
+public class DifficultyTests
+{
+    [Fact]
+    public void PresetsGetHarderAsLevelRises()
+    {
+        var relaxed = DifficultyTable.Get(Difficulty.Relaxed);
+        var classic = DifficultyTable.Get(Difficulty.Classic);
+        var challenge = DifficultyTable.Get(Difficulty.Challenge);
+
+        Assert.True(relaxed.StartingCash > classic.StartingCash);
+        Assert.True(classic.StartingCash > challenge.StartingCash);
+        Assert.True(relaxed.StartingReputation > classic.StartingReputation);
+        Assert.True(classic.StartingReputation > challenge.StartingReputation);
+        Assert.True(relaxed.ArrivalsPerMinuteBase > classic.ArrivalsPerMinuteBase);
+        Assert.True(classic.ArrivalsPerMinuteBase > challenge.ArrivalsPerMinuteBase);
+        Assert.True(relaxed.BankruptcyGraceDays > classic.BankruptcyGraceDays);
+        Assert.True(classic.BankruptcyGraceDays > challenge.BankruptcyGraceDays);
+    }
+
+    [Fact]
+    public void ClassicPresetMatchesDefaultConfig()
+    {
+        var classic = DifficultyTable.Get(Difficulty.Classic);
+        Assert.Equal(SimConfig.Default.StartingCash, classic.StartingCash);
+        Assert.Equal(SimConfig.Default.StartingReputation, classic.StartingReputation);
+        Assert.Equal(SimConfig.Default.ArrivalsPerMinuteBase, classic.ArrivalsPerMinuteBase);
+        Assert.Equal(SimConfig.Default.BankruptcyGraceDays, classic.BankruptcyGraceDays);
+    }
+}
+
 public class WeatherTests
 {
     [Fact]

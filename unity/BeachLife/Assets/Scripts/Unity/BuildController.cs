@@ -50,6 +50,12 @@ namespace BeachLife.Unity
 
         private void Update()
         {
+            if (MainMenu.Visible)
+            {
+                if (_ghost != null) _ghost.SetActive(false);
+                return; // the menu owns the mouse
+            }
+
             if (ResortRunner.Instance != null && _resort != ResortRunner.Instance.Resort)
             {
                 _resort = ResortRunner.Instance.Resort; // new game or loaded save

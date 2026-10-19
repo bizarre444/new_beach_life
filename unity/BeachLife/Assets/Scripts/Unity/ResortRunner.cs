@@ -13,8 +13,10 @@ namespace BeachLife.Unity
         public int MapHeight = 36;
         public int Seed = 12345;
 
-        [Header("Economy")]
-        public int StartingCash = 50000;
+        [Header("Game")]
+        public Difficulty Difficulty = Difficulty.Classic;
+        /// <summary>True while a playable (non-bankrupt) session exists, so the menu can offer Continue.</summary>
+        public bool HasSession { get; private set; }
 
         [Header("Time")]
         [Tooltip("Real seconds for one in-game minute at speed 1.")]
@@ -32,10 +34,14 @@ namespace BeachLife.Unity
 
         private Resort CreateResort(int seed)
         {
+            var preset = DifficultyTable.Get(Difficulty);
             var config = new SimConfig
             {
                 RealSecondsPerGameMinute = RealSecondsPerGameMinute,
-                StartingCash = StartingCash,
+                StartingCash = preset.StartingCash,
+                StartingReputation = preset.StartingReputation,
+                ArrivalsPerMinuteBase = preset.ArrivalsPerMinuteBase,
+                BankruptcyGraceDays = preset.BankruptcyGraceDays,
             };
             var resort = new Resort(MapWidth, MapHeight, seed, config);
             resort.Clock.Speed = SpeedSteps[SpeedIndex];
@@ -63,7 +69,14 @@ namespace BeachLife.Unity
             Resort = CreateResort(Seed);
             SpeedIndex = 1;
             Resort.Clock.Speed = SpeedSteps[SpeedIndex];
+            HasSession = true;
         }
+
+        /// <summary>Marks the session started after loading a save.</summary>
+        public void MarkSessionStarted() => HasSession = true;
+
+        /// <summary>Clears the session (bankruptcy); the menu then hides Continue.</summary>
+        public void ClearSession() => HasSession = false;
 
         public static Vector3 WorldPos(float tileX, float tileY, float height = 0f) =>
             new Vector3(tileX + 0.5f, height, tileY + 0.5f);
