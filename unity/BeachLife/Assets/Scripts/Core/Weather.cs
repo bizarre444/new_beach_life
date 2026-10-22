@@ -45,13 +45,13 @@ namespace BeachLife.Core
         public static readonly WeatherInfo[] All =
         {
             new WeatherInfo(WeatherType.Sunny, "Sunny", "Perfect beach weather.",
-                1f, 1f, 1f, 1f, 1.05f),
+                1f, 1f, 1f, 1f, 0.85f),
             new WeatherInfo(WeatherType.Hot, "Heatwave", "Scorching heat - guests drink a lot.",
-                1.1f, 1f, 1.7f, 1.3f, 1.15f),
+                1.1f, 1f, 1.7f, 1.3f, 0.92f),
             new WeatherInfo(WeatherType.Cloudy, "Cloudy", "Grey but dry.",
-                0.85f, 0.9f, 1f, 0.3f, 0.8f),
+                0.85f, 0.9f, 1f, 0.3f, 0.62f),
             new WeatherInfo(WeatherType.Rainy, "Rain", "Rain drives guests away.",
-                0.45f, 0.6f, 0.9f, 0f, 0.55f),
+                0.45f, 0.6f, 0.9f, 0f, 0.42f),
         };
 
         public static WeatherInfo Get(WeatherType type) => All[(int)type];

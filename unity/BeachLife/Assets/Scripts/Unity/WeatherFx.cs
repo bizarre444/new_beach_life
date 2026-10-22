@@ -15,19 +15,16 @@ namespace BeachLife.Unity
 
         private void Start()
         {
-            // Find the directional sun light specifically (not hemisphere ambient).
-            _sun = FindObjectOfType<Light>();
-            if (_sun != null && _sun.type != LightType.Directional)
+            // There are two directional lights (Sun + hemisphere fill); pick the actual sun.
+            foreach (var light in FindObjectsOfType<Light>())
             {
-                var lights = FindObjectsOfType<Light>();
-                foreach (var l in lights)
+                if (light.type != LightType.Directional) continue;
+                if (light.name == "Sun" || light.shadows != LightShadows.None)
                 {
-                    if (l.type == LightType.Directional)
-                    {
-                        _sun = l;
-                        break;
-                    }
+                    _sun = light;
+                    break;
                 }
+                if (_sun == null) _sun = light; // fallback: first directional
             }
             _resort = _resort ?? (ResortRunner.Instance != null ? ResortRunner.Instance.Resort : null);
         }
@@ -53,8 +50,8 @@ namespace BeachLife.Unity
                         : new Color(1f, 0.97f, 0.88f);
             }
             RenderSettings.ambientLight = weather == WeatherType.Rainy
-                ? new Color(0.4f, 0.43f, 0.5f)
-                : new Color(0.55f, 0.57f, 0.6f) * Mathf.Lerp(0.8f, 1.05f, info.SunIntensity);
+                ? new Color(0.3f, 0.33f, 0.4f)
+                : new Color(0.38f, 0.4f, 0.44f) * Mathf.Lerp(0.85f, 1.1f, info.SunIntensity);
 
             // Fog: dense grey for rain, light for cloudy, none for clear.
             if (weather == WeatherType.Rainy)

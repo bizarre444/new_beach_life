@@ -68,6 +68,7 @@ save through the real JSON serializer, writes `build/beachlife_report.json` and 
 | Input | Action |
 | --- | --- |
 | WASD / arrows / middle-drag | Pan |
+| Right mouse button (hold) | Look around: rotate and tilt the camera, in-game perspective |
 | Q / E | Rotate |
 | Mouse wheel | Zoom |
 | Left click | Place, demolish or inspect, depending on the mode |
@@ -77,6 +78,35 @@ save through the real JSON serializer, writes `build/beachlife_report.json` and 
 The top bar holds cash, the clock and today's weather (plus tomorrow's forecast), guest count,
 reputation, walkouts, the speed controls (pause, 1x, 3x, 8x) and the Staff / Ads / Goals / Save
 panels. Click a building to inspect it: price slider, attendant assignment, demolish.
+
+## Restyling the UI in the Unity editor
+
+All interface screens are real uGUI objects saved in `Assets/Scenes/Resort.unity`. Open the
+scene and find two canvases under the `Resort` object:
+
+- **UICanvas** — in-game HUD: `TopBar` (labels + `StaffBtn`/`AdsBtn`/`GoalsBtn`/`SaveBtn`/`MenuBtn`,
+  speed buttons), `PalettePanel` (build menu; style `RowTemplate` — the per-building rows copy
+  its look), `InspectorPanel`, `LogPanel`, `FloatingPanel`, `ExitDialog`, `GameOverPanel`.
+- **MenuCanvas** — main menu: `MenuPanel/MainScreen` (buttons `ContinueBtn`, `NewGameBtn`,
+  `SettingsBtn`, `HowToBtn`, `QuitBtn`), `NewGameScreen`, `SettingsScreen`, `HowToScreen`.
+
+Change colors, fonts, sizes and layout freely — at runtime the components only find these nodes
+by name and bind behaviour; they never recreate nodes that already exist. To rebuild the scene
+from scratch (discarding visual edits): *BeachLife → Create Resort Scene*.
+
+## Changing art and textures
+
+The game ships with code-only placeholder art; every piece has a swap point:
+
+- **Terrain**: drop your own image at `Assets/Resources/terrain.png` — it replaces the generated
+  beach texture entirely (stretched over the whole plot). Colors otherwise come from
+  `Palette.Tile`.
+- **Building colors**: `Palette.Category` maps each category to a color; building shapes are
+  built in `WorldView.CreateBuildingView` from Unity primitives.
+- **Guests/staff**: capsules tinted by `Palette.Mood` in `WorldView`.
+- **Sky**: gradient generated in `GameBootstrap.CreateSkybox`.
+- **UI**: see the section above — restyle in the editor, or adjust `UI.PanelColor` /
+  `UI.ButtonColor` / `UI.AccentColor`.
 
 ## What the simulation does
 

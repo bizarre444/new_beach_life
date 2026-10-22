@@ -5,6 +5,7 @@ using System.IO;
 using BeachLife.Core;
 using BeachLife.Unity;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace BeachLife.EditorTools
@@ -27,6 +28,13 @@ namespace BeachLife.EditorTools
         {
             EditorSettings.enterPlayModeOptionsEnabled = true;
             EditorSettings.enterPlayModeOptions = EnterPlayModeOptions.DisableDomainReload;
+
+            // Prefer the saved scene so the editable-UI path (Resort.unity) is what gets tested;
+            // fall back to an empty scene where the bootstrap creates everything at runtime.
+            const string scenePath = "Assets/Scenes/Resort.unity";
+            if (System.IO.File.Exists(scenePath))
+                EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
+
             EditorApplication.update += WaitForPlayMode;
             EditorApplication.isPlaying = true;
         }
@@ -42,6 +50,44 @@ namespace BeachLife.EditorTools
             public bool SnapshotRoundTripOk;
             public string Screenshot = "";
             public List<string> Errors = new List<string>();
+            public List<string> UiDiag = new List<string>();
+        }
+
+        private static void CollectUiDiagnostics()
+        {
+            var hud = UnityEngine.Object.FindObjectOfType<HudGui>();
+            var menu = UnityEngine.Object.FindObjectOfType<MainMenu>();
+            var cam = Camera.main;
+            _report.UiDiag.Add($"camera={(cam != null ? cam.name : "NULL")} pos={(cam != null ? cam.transform.position.ToString("F1") : "-")}");
+            if (menu != null) _report.UiDiag.Add($"menu.Visible={MainMenu.Visible}");
+            if (hud == null) { _report.UiDiag.Add("HUD=NULL"); return; }
+
+            var canvas = hud.transform.Find("UICanvas")?.GetComponent<Canvas>();
+            if (canvas == null) { _report.UiDiag.Add("UICanvas=MISSING"); return; }
+            _report.UiDiag.Add($"UICanvas activeInHierarchy={canvas.gameObject.activeInHierarchy} " +
+                               $"enabled={canvas.enabled} renderMode={canvas.renderMode} " +
+                               $"cam={(canvas.worldCamera != null ? canvas.worldCamera.name : "NULL")} " +
+                               $"sort={canvas.sortingOrder} planeDist={canvas.planeDistance}");
+
+            foreach (var panelName in new[] { "TopBar", "PalettePanel", "InspectorPanel", "LogPanel" })
+            {
+                var panel = canvas.transform.Find(panelName) as RectTransform;
+                if (panel == null) { _report.UiDiag.Add($"{panelName}=MISSING"); continue; }
+                var rect = panel.rect;
+                _report.UiDiag.Add($"{panelName}: active={panel.gameObject.activeInHierarchy} children={panel.childCount} " +
+                                   $"rect(w={rect.width:F0} h={rect.height:F0} x={rect.x:F0} y={rect.y:F0})");
+            }
+
+            var cashText = canvas.transform.Find("TopBar/CashText")?.GetComponent<UnityEngine.UI.Text>();
+            _report.UiDiag.Add($"CashText={(cashText != null ? $"'{cashText.text}'" : "MISSING")}");
+
+            var paletteRoot = canvas.transform.Find("PalettePanel/BuildingScroll") as RectTransform;
+            var paletteContent = canvas.transform.Find("PalettePanel/BuildingScroll/Viewport/Content") as RectTransform;
+            _report.UiDiag.Add($"PaletteScroll: rootChildren={(paletteRoot != null ? paletteRoot.childCount.ToString() : "MISS")} " +
+                               $"contentChildren={(paletteContent != null ? paletteContent.childCount.ToString() : "MISS")}");
+
+            var menuBtn = canvas.transform.Find("TopBar/MenuBtn") as RectTransform;
+            _report.UiDiag.Add($"MenuBtn={(menuBtn != null ? $"pos=({menuBtn.position.x:F0},{menuBtn.position.y:F0}) size=({menuBtn.rect.width:F0}x{menuBtn.rect.height:F0})" : "MISSING")}");
         }
 
         private static void WaitForPlayMode()
@@ -51,6 +97,16 @@ namespace BeachLife.EditorTools
 
             EditorApplication.update -= WaitForPlayMode;
             _report = new SmokeReport();
+            EditorApplication.update += CaptureMenuThenSimulate;
+        }
+
+        /// <summary>Waits a few frames so the world and menu are rendered before the first shot.</summary>
+        private static void CaptureMenuThenSimulate()
+        {
+            _updatesSeen++;
+            if (_updatesSeen < WarmupUpdates) return;
+            EditorApplication.update -= CaptureMenuThenSimulate;
+            CaptureScreenshot("../../build/beachlife_menu.png"); // menu is up at this point
             Simulate();
             EditorApplication.update += CollectAndFinish;
         }
@@ -83,7 +139,7 @@ namespace BeachLife.EditorTools
 
             var json = JsonUtility.ToJson(resort.CaptureSnapshot());
             var restored = JsonUtility.FromJson<ResortSnapshot>(json);
-            var copy = new Resort(48, 36, 1);
+            var copy = new Resort(restored.Map.Width, restored.Map.Height, 1);
             copy.ApplySnapshot(restored);
             _report.SnapshotRoundTripOk =
                 copy.Economy.Cash == resort.Economy.Cash
@@ -105,7 +161,8 @@ namespace BeachLife.EditorTools
             EditorApplication.update -= CollectAndFinish;
             try
             {
-                _report.Screenshot = CaptureScreenshot();
+                CollectUiDiagnostics();
+                _report.Screenshot = CaptureScreenshot("../../build/beachlife_smoke.png");
             }
             catch (Exception e)
             {
@@ -127,12 +184,13 @@ namespace BeachLife.EditorTools
 
         private static void PlaceAll(Resort resort)
         {
+            // Layout tuned for the 40x40 plot (original Beach Life grid size).
             Place(resort, "beach_bar", 20, 20);
             Place(resort, "toilets", 26, 20);
             Place(resort, "restaurant", 12, 20);
             Place(resort, "pool", 30, 21);
-            Place(resort, "hotel_block", 38, 20);
-            Place(resort, "gift_shop", 8, 21);
+            Place(resort, "hotel_block", 6, 20);
+            Place(resort, "gift_shop", 5, 24);
             Place(resort, "fountain", 34, 19);
             Place(resort, "ice_cream_stand", 28, 19);
             for (int i = 0; i < 6; i++) Place(resort, "sun_lounger", 14 + i * 2, 6);
@@ -161,7 +219,7 @@ namespace BeachLife.EditorTools
             return -1;
         }
 
-        private static string CaptureScreenshot()
+        private static string CaptureScreenshot(string relativePath)
         {
             var camera = Camera.main;
             if (camera == null) return "";
@@ -180,7 +238,7 @@ namespace BeachLife.EditorTools
             RenderTexture.active = null;
             rt.Release();
 
-            var path = Path.GetFullPath("../../build/beachlife_smoke.png");
+            var path = Path.GetFullPath(relativePath);
             File.WriteAllBytes(path, tex.EncodeToPNG());
             return path;
         }

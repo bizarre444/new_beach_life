@@ -8,8 +8,8 @@ namespace BeachLife.Unity
     /// </summary>
     public sealed class GameBootstrap : MonoBehaviour
     {
-        public int MapWidth = 48;
-        public int MapHeight = 36;
+        public int MapWidth = 40;
+        public int MapHeight = 40;
         public int Seed = 12345;
 
         private void Awake() => Create(MapWidth, MapHeight, Seed);
@@ -19,7 +19,7 @@ namespace BeachLife.Unity
         {
             if (FindObjectOfType<GameBootstrap>() != null) return;
             if (FindObjectOfType<ResortRunner>() != null) return;
-            Create(48, 36, 12345);
+            Create(40, 40, 12345);
         }
 
         public static ResortRunner Create(int width, int height, int seed)
@@ -49,7 +49,7 @@ namespace BeachLife.Unity
             camera.backgroundColor = new Color(0.55f, 0.78f, 0.92f);
             camera.farClipPlane = 500f;
             var rig = camera.gameObject.GetComponent<CameraRig>() ?? camera.gameObject.AddComponent<CameraRig>();
-            rig.LookAt(new Vector3(width / 2f, 0f, height / 2f), 34f);
+            rig.LookAt(new Vector3(width / 2f, 0f, height / 2f), 30f);
 
             // Gradient skybox quad behind the map.
             CreateSkybox(width, height);
@@ -59,7 +59,7 @@ namespace BeachLife.Unity
             var hemiLight = hemi.AddComponent<Light>();
             hemiLight.type = LightType.Directional;
             hemiLight.color = new Color(0.6f, 0.72f, 0.85f); // sky tint
-            hemiLight.intensity = 0.4f;
+            hemiLight.intensity = 0.3f;
             hemiLight.enabled = true;
             hemiLight.transform.rotation = Quaternion.Euler(90f, 0f, 0f); // point down for ambient fill
 
@@ -67,13 +67,13 @@ namespace BeachLife.Unity
             var sun = new GameObject("Sun");
             var sunLight = sun.AddComponent<Light>();
             sunLight.type = LightType.Directional;
-            sunLight.intensity = 1.15f;
+            sunLight.intensity = 0.9f;
             sunLight.color = new Color(1f, 0.96f, 0.85f);
             sunLight.shadows = LightShadows.Soft;
             sunLight.transform.rotation = Quaternion.Euler(52f, -30f, 0f);
             sunLight.cullingMask = -1; // all layers
 
-            RenderSettings.ambientLight = new Color(0.55f, 0.57f, 0.6f);
+            RenderSettings.ambientLight = new Color(0.4f, 0.42f, 0.46f);
             return runner;
         }
 
