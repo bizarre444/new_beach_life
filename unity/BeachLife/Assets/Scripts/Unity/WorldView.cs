@@ -109,6 +109,16 @@ namespace BeachLife.Unity
         private void CreateTerrain()
         {
             var map = _resort.Map;
+
+            // Custom art hook: drop a texture at Assets/Resources/terrain.png to replace the
+            // generated terrain entirely (it is stretched over the whole plot, width x height).
+            var custom = Resources.Load<Texture2D>("terrain");
+            if (custom != null)
+            {
+                CreateTerrainFrom(custom, map);
+                return;
+            }
+
             var texture = new Texture2D(map.Width, map.Height, TextureFormat.RGBA32, false)
             {
                 filterMode = FilterMode.Bilinear,
@@ -148,6 +158,24 @@ namespace BeachLife.Unity
                 renderer.receiveShadows = true;
             }
             ground.GetComponent<Renderer>().sharedMaterial = instance;
+        }
+
+        /// <summary>Builds the ground quad from a custom texture (Assets/Resources/terrain.png).</summary>
+        private void CreateTerrainFrom(Texture2D texture, GridMap map)
+        {
+            var ground = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            ground.name = "Terrain (custom)";
+            ground.transform.SetParent(transform, false);
+            ground.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+            ground.transform.position = new Vector3(map.Width / 2f, -0.01f, map.Height / 2f);
+            ground.transform.localScale = new Vector3(map.Width, map.Height, 1f);
+
+            var material = new Material(Palette.Solid(Color.white)) { mainTexture = texture };
+            if (material.HasProperty("_BaseMap")) material.SetTexture("_BaseMap", texture);
+            var renderer = ground.GetComponent<Renderer>();
+            renderer.sharedMaterial = material;
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+            renderer.receiveShadows = true;
         }
 
         private void SyncBuildings()

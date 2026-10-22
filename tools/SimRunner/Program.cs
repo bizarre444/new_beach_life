@@ -12,7 +12,7 @@ namespace BeachLife.SimRunner
             int days = args.Length > 0 && int.TryParse(args[0], out int parsed) ? parsed : 5;
             int seed = args.Length > 1 && int.TryParse(args[1], out int parsedSeed) ? parsedSeed : 2024;
 
-            var resort = new Resort(48, 36, seed, new SimConfig { StartingCash = 150000 });
+            var resort = new Resort(40, 40, seed, new SimConfig { StartingCash = 150000 });
             PlaceStarterResort(resort);
 
             // Exercise the new systems the same way a player would.
@@ -66,17 +66,17 @@ namespace BeachLife.SimRunner
             Place(resort, "showers", 24, 24);
             Place(resort, "pool", 28, 22);
             Place(resort, "restaurant", 36, 24);
-            Place(resort, "hotel_block", 40, 20);
+            Place(resort, "hotel_block", 33, 20);
             Place(resort, "ice_cream_stand", 26, 26);
             Place(resort, "volleyball_court", 10, 8);
-            Place(resort, "gift_shop", 34, 26);
+            Place(resort, "gift_shop", 5, 26);
             for (int i = 0; i < 12; i++) Place(resort, "sun_lounger", 6 + i * 3, 6);
             for (int i = 0; i < 6; i++) Place(resort, "parasol", 7 + i * 6, 12);
-            for (int i = 0; i < 4; i++) Place(resort, "litter_bin", 10 + i * 8, 20);
-            Place(resort, "lifeguard_tower", 20, 4);
+            for (int i = 0; i < 4; i++) Place(resort, "litter_bin", 10 + i * 8, 18);
+            Place(resort, "lifeguard_tower", 20, 6);
             Place(resort, "fountain", 18, 25);
             Place(resort, "palm_tree", 4, 14);
-            Place(resort, "palm_tree", 44, 14);
+            Place(resort, "palm_tree", 38, 14);
         }
 
         private static void Place(Resort resort, string id, int x, int y)

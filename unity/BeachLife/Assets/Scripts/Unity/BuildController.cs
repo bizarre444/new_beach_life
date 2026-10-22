@@ -74,7 +74,7 @@ namespace BeachLife.Unity
 
             UpdateGhost(tileX, tileY);
 
-            if (!Input.GetMouseButtonDown(0) || HudGui.PointerOverHud) return;
+            if (!Input.GetMouseButtonDown(0) || HudGui.PointerOverUI) return;
 
             switch (Mode)
             {

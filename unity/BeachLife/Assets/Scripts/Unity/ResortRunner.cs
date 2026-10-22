@@ -9,8 +9,9 @@ namespace BeachLife.Unity
         public static ResortRunner Instance { get; private set; }
 
         [Header("Plot")]
-        public int MapWidth = 48;
-        public int MapHeight = 36;
+        // 40x40 grid matches the original Beach Life (iMAP_GRIDSIZE_XY 40).
+        public int MapWidth = 40;
+        public int MapHeight = 40;
         public int Seed = 12345;
 
         [Header("Game")]
@@ -19,8 +20,8 @@ namespace BeachLife.Unity
         public bool HasSession { get; private set; }
 
         [Header("Time")]
-        [Tooltip("Real seconds for one in-game minute at speed 1.")]
-        public float RealSecondsPerGameMinute = 0.25f;
+        [Tooltip("Real seconds for one in-game minute at speed 1. 1.0 matches the original's 1200-second day.")]
+        public float RealSecondsPerGameMinute = 1f;
         public float[] SpeedSteps = { 0f, 1f, 3f, 8f };
 
         public Resort Resort { get; private set; }
@@ -30,6 +31,8 @@ namespace BeachLife.Unity
         {
             Instance = this;
             Resort = CreateResort(Seed);
+            var rig = FindObjectOfType<CameraRig>();
+            if (rig != null) rig.SetMapBounds(MapWidth, MapHeight);
         }
 
         private Resort CreateResort(int seed)
